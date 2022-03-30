@@ -23,6 +23,8 @@ on:
         type: choice
         options:
         - xiaomi-4a-gigabit
+        - xiaomi-cr6608
+        - redmi-ac2100
       version_description:
         description: '输入版本描述'     
         required: true
@@ -64,6 +66,11 @@ jobs:
           if [ ${{ github.event.inputs.model }} == xiaomi-4a-gigabit ]
           then
             NUMBER=1 ; echo "你选择了小米4A千兆版"
+          elif [ ${{ github.event.inputs.model }} == xiaomi-cr6608 ]
+          then
+            NUMBER=2 ; echo "你选择了小米CR6608"
+          else
+            NUMBER=3 ; echo "你选择了红米AC2100"
           fi
           echo "CLONE_SH=preset-models/${NUMBER}clone.sh" >> $GITHUB_ENV
           echo "MODIFY_SH=preset-models/${NUMBER}modify.sh" >> $GITHUB_ENV
@@ -123,6 +130,7 @@ jobs:
           echo "TAG_NAME=${CURRENT_TIME}" >> $GITHUB_ENV
           echo "RELEASE_PRE=${CURRENT_TIME%.*}" >> $GITHUB_ENV
       - name: 上传固件到release
+        id: upload-release
         if: github.event.inputs.release == 'true' && env.RELEASE_FIRMWARE_VALUE != ''
         uses: svenstaro/upload-release-action@v2
         with:
@@ -137,7 +145,7 @@ jobs:
         env:
           RELEASE_FIRMWARE_VALUE: ${{ secrets.RELEASE_FIRMWARE }}
       - name: 上传固件到artifact
-        if: github.event.inputs.artifact == 'true' || failure()
+        if: github.event.inputs.artifact == 'true' || steps.upload-release.conclusion == 'skipped'
         uses: actions/upload-artifact@v3
         with:
           name: collected_firmware

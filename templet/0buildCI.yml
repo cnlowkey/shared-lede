@@ -118,6 +118,7 @@ jobs:
           cd packages
           zip -r ../packages.zip ./*
       - name: 上传固件到release
+        id: upload-release
         if: github.event.inputs.release == 'true' && env.RELEASE_FIRMWARE_VALUE != ''
         uses: svenstaro/upload-release-action@v2
         with:
@@ -132,7 +133,7 @@ jobs:
         env:
           RELEASE_FIRMWARE_VALUE: ${{ secrets.RELEASE_FIRMWARE }}
       - name: 上传固件到artifact
-        if: github.event.inputs.artifact == 'true' || failure()
+        if: github.event.inputs.artifact == 'true' || steps.upload-release.conclusion == 'skipped'
         uses: actions/upload-artifact@v3
         with:
           name: collected_firmware
