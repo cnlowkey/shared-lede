@@ -106,7 +106,7 @@ jobs:
           df -h
       - name: 编译
         run: |
-          make -j$(nproc) || make -j1 V=s
+          make -j$(nproc) V=s || make -j1 V=s
           echo "======================="
           echo "Space usage:"
           echo "======================="
